@@ -1,0 +1,38 @@
+﻿@model System.Collections.Generic.IEnumerable<BowlingLegends.OtherModels.SeriesScoresId>
+
+
+@{
+    ViewBag.Title = "Top 10 Series Scores";
+}
+
+<h2>Top 10 Scores</h2>
+
+<table class="table">
+    <tr>
+        <th></th>
+        <th>
+            @Html.DisplayNameFor(model => model.Bowler.Name)
+        </th>
+        <th>
+            Score
+        </th>
+    </tr>
+
+    @{
+        var count = 1;
+    }
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@count</td>
+            <td>
+                @Html.ActionLink(item.Bowler.Name, "Details", "Bowlers", new {id = item.Bowler.BowlerID}, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Score)
+            </td>
+        </tr>
+        count++;
+    }
+
+</table>

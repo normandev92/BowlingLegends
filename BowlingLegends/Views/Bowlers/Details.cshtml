@@ -1,0 +1,446 @@
+﻿@model BowlingLegends.Models.BowlerViewModel
+
+@{
+    ViewBag.Title = "Details";
+    var authenticated = User.Identity.IsAuthenticated;
+    var id = Model.Bowler.BowlerID.ToString();
+    id = id + ".jpg";
+
+    double total = (Model.Rounds * 300.00);
+    var percent = Math.Round(((Model.TotalPins / total) * 100), 2); 
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Bowler</h4>
+    <hr />
+    <table style="width: 100%" >
+        <tr>
+            <td>
+                <img src="~/Images/@id" />
+            </td>
+            <td>
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Bowler.Name)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.Bowler.Name)
+                    </dd>
+
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Bowler.NickName)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.Bowler.NickName)
+                    </dd>
+
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Bowler.BowlingArm)
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.Bowler.BowlingArm)
+                    </dd>
+                </dl>
+            </td>
+            <td>
+                <h2>Rating: @Model.CurrentRating</h2>
+            </td>
+        </tr>
+    </table>
+</div>
+<p>
+    @if (authenticated)
+    {
+        @Html.ActionLink("Edit |", "Edit", new { id = Model.Bowler.BowlerID });
+    }
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            Series
+        </th>
+        <th>
+            S.W
+        </th>
+        <th>
+            2nd
+        </th>
+        <th>
+            3rd
+        </th>
+        <th>
+            lasts
+        </th>
+        <th>
+            Sweeps
+        </th>
+        <th>
+            Rounds
+        </th>
+        <th>
+            R.W
+        </th>
+        <th>
+            150
+        </th>
+        <th>
+            300
+        </th>
+        <th>
+            Total Points
+        </th>
+        <th>
+            %
+        </th>
+        <th>
+            AVG
+        </th>
+        <th>
+            L.S
+        </th>
+        <th>
+            L.S.S
+        </th>
+        <th>
+            H.S
+        </th>
+        <th>
+            H.S.S
+        </th>
+        <th>
+            $
+        </th>
+        <th>
+            R.P
+        </th>
+        <th></th>
+    </tr>
+
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => Model.TotalSeries)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.SeriesWins)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.Seconds)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.Thirds)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.Lasts)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.SeriesSweeps)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.Rounds)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.RondWins)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.OneHundredFifty)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.ThreeHundred)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.TotalPins)
+        </td>
+        <td>
+            @percent
+        </td>
+        <td>
+            @Math.Round(Model.Average, 2)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.LowestRoundScore)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.LowestSeriesScore)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.HighestRoundScore)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.HighestSeriesScore)
+        </td>
+        @{
+            var winnings = (Model.SeriesWins - Model.Lasts)*10;
+        }
+        @{
+            if (winnings > 0)
+            {
+                <td style="color: Green">
+                    $@winnings
+                </td>
+            }
+            else if (winnings < 0)
+            {
+                <td style="color: red">
+                    $@winnings
+                </td>
+            }
+            else
+            {
+                <td>
+                    $@winnings
+                </td>
+            }
+        }
+        <td style="color: blue">
+            @Html.DisplayFor(modelItem => Model.RankingPoints)
+        </td>
+    </tr>
+
+</table>
+<br />
+<h3>@Model.Bowler.Name vs Opponents</h3>
+<table class="table">
+    <tr>
+        <th>
+            Opponenet
+        </th>
+        <th>
+            Series Played
+        </th>
+        <th>
+            Series Won
+        </th>
+        <th>
+            Series Lost
+        </th>
+        <th>
+            Series Drawn
+        </th>
+        <th>
+            Rounds Played
+        </th>
+        <th>
+            Rounds Won
+        </th>
+        <th>
+            Rounds Lost
+        </th>
+        <th>
+            Rounds Drawn
+        </th>
+    </tr>
+
+    @foreach (var item in Model.BowlerVsBowlersList)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Bowler.Name, "Details", "Bowlers", new {id = item.Bowler.BowlerID}, null)
+            </td>
+            <td>
+                @{
+                    var seriesPlayed = item.SeriesWin + item.SeriesLoss + item.SeriesdDraw;
+                }
+                @seriesPlayed
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeriesWin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeriesLoss)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeriesdDraw)
+            </td>
+            <td>
+                @{
+                    var roundsPlayed = item.RoundWin + item.RoundLoss + item.RoundDraw;
+                }
+                @roundsPlayed
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoundWin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoundLoss)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoundDraw)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div id="chartdiv" style="width: 1000px; height: 500px;">
+</div>
+<div id="chartdivseries" style="width: 1000px; height: 500px;">
+</div>
+<h3>Series Scores and Placings</h3>
+<table class="table">
+    <tr>
+        <th>
+            Series
+        </th>
+        <th>
+            Score
+        </th>
+        <th>
+            Placing
+        </th>
+    </tr>
+
+    @foreach (var item in Model.SeriesScoresAndPlacings.OrderByDescending(x => x.Id))
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Id.ToString(), "Details", "Series", new { id = item.Id }, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Score)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Placing)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<h3>Round Scores and Placings</h3>
+<table class="table">
+    <tr>
+        <th>
+            Round
+        </th>
+        <th>
+            Score
+        </th>
+        <th>
+            Placing
+        </th>
+    </tr>
+
+    @foreach (var item in Model.RoundScoresAndPlacings.OrderByDescending(x => x.Id))
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Id.ToString(), "Details", "Rounds", new { id = item.Id }, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Score)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Placing)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+    google.load("visualization", "1", { packages: ["corechart"] });
+</script>
+
+<script type="text/javascript">
+
+    $(function () {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            url: '@Url.Action("RoundScoresGraph", new { id = Model.Bowler.BowlerID })',
+            data: '{}',
+            success: function (chartsdata) {
+
+                // Callback that creates and populates a data table,
+                // instantiates the pie chart, passes in the data and
+                // draws it.
+
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Round');
+                data.addColumn('number', 'Score');
+                for (var i = 0; i < chartsdata.length; i++) {
+                    data.addRow([chartsdata[i].Round.toString(), chartsdata[i].Score]);
+                }
+
+                // Instantiate and draw our chart, passing in some options
+                var chart = new google.visualization.ColumnChart(document.getElementById('chartdiv'));
+
+                chart.draw(data,
+                                {
+                                    title: "Round Scores Graph",
+                                    position: "top",
+                                    fontsize: "14px",
+                                    chartArea: { width: '80%' },
+                                    vAxis: {
+                                        viewWindowMode: 'explicit',
+                                        viewWindow: {
+                                            max: 300
+                                        },
+                                        gridlines: { count: 14 }
+                                    }
+                                });
+            },
+            error: function () {
+                alert("Error loading data! Please try again.");
+            }
+        });
+    });
+
+</script>
+
+
+<script type="text/javascript">
+
+    $(function () {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            url: '@Url.Action("SeriesScoresGraph", new { id = Model.Bowler.BowlerID })',
+            data: '{}',
+            success: function (chartsdata) {
+
+                // Callback that creates and populates a data table,
+                // instantiates the pie chart, passes in the data and
+                // draws it.
+
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Series');
+                data.addColumn('number', 'Score');
+                for (var i = 0; i < chartsdata.length; i++) {
+                    data.addRow([chartsdata[i].Series.toString(), chartsdata[i].Score]);
+                }
+
+                // Instantiate and draw our chart, passing in some options
+                var chart = new google.visualization.ColumnChart(document.getElementById('chartdivseries'));
+
+                chart.draw(data,
+                {
+                    title: "Series Graph",
+                    position: "top",
+                    fontsize: "14px",
+                    chartArea: { width: '80%' },
+                    vAxis: { minValue: 0 }
+                });
+            },
+            error: function () {
+                alert("Error loading data! Please try again.");
+            }
+        });
+    });
+
+</script>

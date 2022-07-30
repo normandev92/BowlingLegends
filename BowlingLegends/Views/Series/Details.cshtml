@@ -1,0 +1,110 @@
+﻿@using BowlingLegends.Models
+@model BowlingLegends.Models.Series
+
+@{
+    ViewBag.Title = "Details";
+    var authenticated = User.Identity.IsAuthenticated;
+    var scores = Model.Rounds.SelectMany(x => x.Scores);
+    var bowlers = scores.Select(x => x.Bowler).Distinct().ToList();
+    var seriesId = Model.SeriesID;
+    var bowlerScores = new Dictionary<Bowler, int>();
+    var highestScore = 0;
+    var lowestScore = 301;
+    foreach (var bowler in bowlers)
+    {
+        var score = bowler.Scores.Where(x => x.Round.SeriesID == seriesId).Sum(x => x.Score1);
+        bowlerScores.Add(bowler, score);
+        if (highestScore < score)
+        {
+            highestScore = score;
+        }
+
+        if (score < lowestScore)
+        {
+            lowestScore = score;
+        }
+    }
+    var winners = bowlerScores.Where(x => x.Value == highestScore).Select(x => x.Key);
+    var loosers = bowlerScores.Where(x => x.Value == lowestScore).Select(x => x.Key);
+}
+
+<h1 style="color: goldenrod">
+    Series @seriesId Winner
+    @foreach (var winner in winners)
+    {
+        var img = winner.BowlerID + ".jpg";
+        <img src="~/Images/@img" />
+    }
+
+</h1>
+
+<div>
+    <hr/>
+    <h4>Series Details</h4>
+    <dl class="dl-horizontal">
+        <dt>
+            Season
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SeasonID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+
+        <dd>
+            @Model.Date.ToString("d")
+        </dd>
+        <dt>
+            Total Score
+        </dt>
+        <dd>
+            @Model.Rounds.SelectMany(a => a.Scores).Sum(x => x.Score1)
+        </dd>
+    </dl>
+    <hr/>
+    <h4>Placings</h4>
+    <table class="table">
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Score
+            </th>
+        </tr>
+
+        @foreach (var item in bowlerScores.OrderByDescending(x => x.Value))
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Key.Name, "Details", "Bowlers", new {id = item.Key.BowlerID}, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Value)
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+
+<h1 style="color: red">
+    LOOSER
+    @foreach (var looser in loosers)
+    {
+        var img = looser.BowlerID + ".jpg";
+        <img src="~/Images/@img"/>
+    }
+
+</h1>
+
+<p>
+    @if (authenticated)
+    {
+        @Html.ActionLink("Edit |", "Edit", new { id = Model.SeriesID });
+    }
+    @Html.ActionLink("Back to List", "Index")
+</p>

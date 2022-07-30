@@ -1,0 +1,127 @@
+﻿@using BowlingLegends.Models
+@model IEnumerable<BowlingLegends.Models.Series>
+
+@{
+    ViewBag.Title = "Series";
+    var authenticated = User.Identity.IsAuthenticated;
+    var seriesHighScore = new Dictionary<int, int>();
+    var seriesWinners = new Dictionary<int, List<Bowler>>();
+
+    foreach (var series in Model)
+    {
+        var scores = series.Rounds.SelectMany(x => x.Scores);
+        var bowlers = scores.Select(x => x.Bowler).Distinct().ToList();
+        var winningBowlers = new List<Bowler>();
+        foreach (var bowler in bowlers)
+        {
+            var score = bowler.Scores.Where(x => x.Round.SeriesID == series.SeriesID).Sum(x => x.Score1);
+
+            //Check SeriesHighScore Dictionary if this is highest for Series
+            if (seriesHighScore.ContainsKey(series.SeriesID) && seriesWinners.ContainsKey(series.SeriesID))
+            {
+                if (seriesHighScore[series.SeriesID] < score)
+                {
+                    seriesHighScore[series.SeriesID] = score;
+                    winningBowlers.Clear();
+                    winningBowlers.Add(bowler);
+                    seriesWinners[series.SeriesID] = winningBowlers;
+                }
+                else if (seriesHighScore[series.SeriesID] == score)
+                {
+                    winningBowlers.Add(bowler);
+                    seriesWinners[series.SeriesID] = winningBowlers;
+                }
+            }
+            else
+            {
+                seriesHighScore.Add(series.SeriesID, score);
+                winningBowlers.Add(bowler);
+                seriesWinners.Add(series.SeriesID, winningBowlers);
+            }
+        }
+    }
+}
+
+<h2>Series</h2>
+
+@if (authenticated)
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            Season
+        </th>
+        <th>
+            Series
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Date)
+        </th>
+        <th>
+            Winning Bowler
+        </th>
+        <th>
+            Winning Score
+        </th>
+        <th>
+            Total Score
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        var winners = new List<Bowler>();
+        var last = new Bowler();
+        if (seriesWinners.ContainsKey(item.SeriesID))
+        {
+            winners = seriesWinners[item.SeriesID];
+            last = winners.Last();
+        }
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Season.SeasonID)
+            </td>
+            <td>
+                @Html.ActionLink(item.SeriesID.ToString(), "Details", new { id = item.SeriesID })
+            </td>
+            <td>
+                @item.Date.ToString("d")
+            </td>
+            <td>
+                @foreach (var w in winners)
+                {
+                    @Html.ActionLink(w.Name, "Details", "Bowlers", new { id = w.BowlerID }, null)
+                    if (!w.Equals(last))
+                    {
+                        <br />
+                    }
+                }
+            </td>
+            <td>
+                @if (seriesHighScore.ContainsKey(item.SeriesID))
+                {
+                    @seriesHighScore[item.SeriesID]
+                }
+            </td>
+            <td>
+                @item.Rounds.SelectMany(a => a.Scores).Sum(x => x.Score1)
+            </td>
+            <td>
+                <p>
+                    @if (authenticated)
+                {
+                        @Html.ActionLink("Edit |", "Edit", new { id = item.SeriesID })
+                    }
+                    @Html.ActionLink("Details", "Details", new { id = item.SeriesID })
+                </p>
+
+            </td>
+        </tr>
+    }
+
+</table>

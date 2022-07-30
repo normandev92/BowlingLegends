@@ -1,0 +1,60 @@
+﻿@model IEnumerable<BowlingLegends.Models.Score>
+
+@{
+    ViewBag.Title = "Scores";
+    var authenticated = User.Identity.IsAuthenticated;
+}
+
+<h2>Scores</h2>
+
+@if (authenticated)
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            Score
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Bowler.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Round.RoundID)
+        </th>
+        <th>
+            Score
+        </th>
+        @if (authenticated)
+        {
+            <th></th>
+        }
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ScoreID)
+            </td>
+            <td>
+                @Html.ActionLink(item.Bowler.Name, "Details", "Bowlers", new {id = item.Bowler.BowlerID}, null)
+            </td>
+            <td>
+                @Html.ActionLink(item.Round.RoundID.ToString(), "Details", "Rounds", new {id = item.Round.RoundID}, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Score1)
+            </td>
+            @if (authenticated)
+            {
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new {id = item.ScoreID})
+                </td>
+            }
+        </tr>
+    }
+
+</table>

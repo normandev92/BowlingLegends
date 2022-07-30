@@ -1,0 +1,304 @@
+﻿@model BowlingLegends.Models.HomeViewModel
+
+@{
+    ViewBag.Title = "Home";
+    var winningId = Model.BowlingStats.FirstOrDefault().BowlingID.ToString();
+    winningId = winningId + ".jpg";
+
+    var loosingId = Model.BowlingStats.LastOrDefault().BowlingID.ToString();
+    loosingId = loosingId + ".jpg";
+}
+
+<div class="jumbotron">
+    <h1 style="color: goldenrod">The Best Bowler: <img src="~/Images/@winningId" /></h1>
+
+
+</div>
+<h5 style="color: black">The Final Day of bowling for this season is: @Model.FinalDate.ToLongDateString(). Maximum series left is @Model.MaxSeriesLeft.</h5>
+<h5 style="color: black"> $@Model.PotMoney in the pot. $@Model.ExpectedPotMoney is the maximum prize money expected for this season.</h5>
+<h5 style="color: black">The maximum additional points any bowler can get is @Model.MaxPoints.</h5>
+
+<h3>Rankings</h3>
+
+<table class="table">
+    <tr>
+        <th>Rank</th>
+        <th>
+            Name
+        </th>
+        <th>
+            S
+        </th>
+        <th>
+            S.W
+        </th>
+        <th>
+            2nd
+        </th>
+        <th>
+            3rd
+        </th>
+        <th>
+            T3F
+        </th>
+        <th>
+            R.W
+        </th>
+        <th>
+            RAV
+        </th>
+        <th>
+            R.T
+        </th>
+        <th>
+            Prd
+        </th>
+        <th>
+            R.P
+        </th>
+    </tr>
+    @{
+        var count = 1;
+    }
+    @foreach (var item in Model.BowlingStats)
+    {
+        var rankChange = item.LastWeekPosition - count;
+        var ratingChange = item.CurrentRating - item.LastWeekRating;
+        var pointsChange = item.RankingPoints - item.LastWeekPoint;
+        <tr>
+            @{
+                if (rankChange > 0)
+                {
+                    <td>@count (&#x25B2;@rankChange)</td>
+                }
+                else if (rankChange < 0)
+                {
+                    <td>@count (&#x25BC;@Math.Abs((int)rankChange))</td>
+                }
+                else
+                {
+                    <td>@count</td>
+                }
+            }
+            <td>
+                @Html.ActionLink(item.Name, "Details", "Bowlers", new { id = item.BowlingID }, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Series)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeriesWins)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SecondPlace)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ThirdPlace)
+            </td>
+            <td>
+                @{
+                    var t3F = item.SeriesWins + @item.SecondPlace + @item.ThirdPlace;
+                }
+                @t3F
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoundWins)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RAV)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentRating)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpectedTotalPoints)
+            </td>
+            <td style="color: blue">
+                @Html.DisplayFor(modelItem => item.RankingPoints) (@item.LastWeekPoint)
+            </td>
+        </tr>
+                        count++;
+                    }
+
+</table>
+<hr />
+<h3> Other Stats</h3>
+<table class="table">
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Swps
+        </th>
+        <th>
+            L
+        </th>
+        <th>
+            150
+        </th>
+        <th>
+            300
+        </th>
+        <th>
+            T.P
+        </th>
+        <th>
+            %
+        </th>
+        <th>
+            AV
+        </th>
+        <th>
+            L.S
+        </th>
+        <th>
+            L.S.S
+        </th>
+        <th>
+            H.S
+        </th>
+        <th>
+            H.S.S
+        </th>
+        @*<th>
+                $
+            </th>*@
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.BowlingStats)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Name, "Details", "Bowlers", new { id = item.BowlingID }, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeriesSweeps)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastPlace)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OneHundredFifty)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ThreeHundred)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPoints)
+            </td>
+            <td>
+                @Math.Round((item.TotalPoints / (item.Rounds * 300.00)) * 100, 1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AveragePoints)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LowScore)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LowestSeriesScore)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HighScore)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HighestSeriesScore)
+            </td>
+            @*@{
+                    var winnings = (item.SeriesWins - item.LastPlace) * 10;
+                }
+                @{
+                    if (winnings > 0)
+                    {
+                        <td style="color: Green">
+                            $@winnings
+                        </td>
+                    }
+                    else if (winnings < 0)
+                    {
+                        <td style="color: red">
+                            $@winnings
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            $@winnings
+                        </td>
+                    }
+                }*@
+        </tr>
+    }
+
+</table>
+
+
+
+<div class="jumbotron">
+    <h1 style="color: red">
+        The Worst Bowler: <img src="~/Images/@loosingId" />
+    </h1>
+</div>
+
+<div id="chartdivseries" style="width: 1000px; height: 500px;">
+</div>
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+    google.load("visualization", "1", { packages: ["corechart"] });
+</script>
+
+
+<script type="text/javascript">
+
+    $(function () {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            url: '@Url.Action("SeriesScoresGraph")',
+            data: '{}',
+            success: function (chartsdata) {
+
+                // Callback that creates and populates a data table,
+                // instantiates the pie chart, passes in the data and
+                // draws it.
+
+                var data = new google.visualization.DataTable();
+
+                data.addColumn('string', 'Series');
+                data.addColumn('number', 'Score');
+                for (var i = 0; i < chartsdata.length; i++) {
+                    data.addRow([chartsdata[i].Series.toString(), chartsdata[i].Score]);
+                }
+
+                // Instantiate and draw our chart, passing in some options
+                var chart = new google.visualization.ColumnChart(document.getElementById('chartdivseries'));
+
+                chart.draw(data,
+                {
+                    title: "Series Graph",
+                    position: "top",
+                    fontsize: "14px",
+                    vAxis: {
+                        viewWindowMode: 'explicit',
+                        viewWindow: {
+                            min: 0,
+                            max: 2000
+                        },
+                        gridlines: { count: 20 }
+                    }
+                });
+            },
+            error: function () {
+                alert("Error loading data! Please try again.");
+            }
+        });
+    });
+
+</script>

@@ -1,0 +1,191 @@
+﻿@model BowlingLegends.Models.HistoricSeriesList
+
+@{
+    ViewBag.Title = "Historical Table";
+}
+
+<h3>Season Prediction. Based from last 6 series. A maximum of @Model.MaxSeriesLeft series left</h3>
+
+<table class="table">
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>Current Points
+        </th>
+        <th>
+            AVG points
+        </th>
+        <th>
+            Additional Points?
+        </th>
+        <th>
+            Total?
+        </th>
+    </tr>
+    @foreach (var item in Model.WeeklyBowlingStatsList.OrderByDescending(a => a.PredictedTotalScore).ThenByDescending(a => a.CurrentPoints))
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Bowler.Name, "Details", "Bowlers", new {id = item.Bowler.BowlerID}, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentPoints)
+            </td>
+            <td>
+                @Math.Round(item.AveragePointsLastFew, 2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpectedAdditionalPoints)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PredictedTotalScore)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<h3>Weekly Ranking Summary</h3>
+
+<table class="table">
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            1st
+        </th>
+        <th>
+            2nd
+        </th>
+        <th>
+            3rd
+        </th>
+        <th>
+            4th
+        </th>
+        <th>
+            Last
+        </th>
+    </tr>
+    @foreach (var item in Model.WeeklyBowlingStatsList.OrderByDescending(a => a.WeeksAtOne).ThenByDescending(a => a.WeeksAtTwo).ThenByDescending(a => a.WeeksAtThree).ThenByDescending(a => a.WeeksAtFour))
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Bowler.Name, "Details", "Bowlers", new { id = item.Bowler.BowlerID }, null)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WeeksAtOne)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WeeksAtTwo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WeeksAtThree)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WeeksAtFour)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WeeksAtFive)
+            </td>
+        </tr>
+    }
+
+</table>
+<hr />
+
+<h2>Historical Tables</h2>
+@{
+    var count = Model.BowlingStatsList.Count;
+}
+@foreach (var list in Model.BowlingStatsList)
+{
+    <h3>@Html.ActionLink("Series " + count, "Details", "Series", new { id = count }, null)</h3>
+    <table class="table">
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                S
+            </th>
+            <th>
+                S.W
+            </th>
+            <th>
+                2nd
+            </th>
+            <th>
+                3rd
+            </th>
+            <th>
+                R.W
+            </th>
+            <th>
+                T.P
+            </th>
+            <th>
+                AV
+            </th>
+            <th>
+                R.T
+            </th>
+            <th>
+                Prd
+            </th>
+            <th>
+                R.P
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in list)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.Name, "Details", "Bowlers", new { id = item.BowlingID }, null)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Series)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SeriesWins)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SecondPlace)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ThirdPlace)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoundWins)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalPoints)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AveragePoints)
+                </td>
+                <td>
+                    @if (count > 3)
+                    {
+                        @Html.DisplayFor(modelItem => item.CurrentRating)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExpectedTotalPoints)
+                </td>
+                <td style="color: blue">
+                    @Html.DisplayFor(modelItem => item.RankingPoints)
+                </td>
+
+            </tr>
+        }
+
+
+    </table>
+
+    count--;
+}

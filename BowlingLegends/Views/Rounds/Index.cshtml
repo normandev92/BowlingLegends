@@ -1,0 +1,85 @@
+﻿@using BowlingLegends.Models
+@model IEnumerable<BowlingLegends.Models.Round>
+
+@{
+    ViewBag.Title = "Rounds";
+    var authenticated = User.Identity.IsAuthenticated;
+}
+
+<h2>Rounds</h2>
+@if (authenticated)
+{
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Series.SeriesID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RoundID)
+        </th>
+        <th>
+            Winning Bowler
+        </th>
+        <th>
+            Winning Score
+        </th>
+        <th>
+            Total Score
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        var winningScore = 0;
+        IEnumerable<Score> winners = new List<Score>();
+        var last = new Score();
+        if (item.Scores.Any())
+        {
+            winningScore = item.Scores.OrderByDescending(x => x.Score1).FirstOrDefault().Score1;
+            winners = item.Scores.Where(x => x.Score1 == winningScore);
+            last = winners.Last();
+        };
+        <tr>
+            <td>
+                @Html.ActionLink(item.Series.SeriesID.ToString(), "Details", "Series", new { id = item.Series.SeriesID }, null)
+            </td>
+            <td>
+                @Html.ActionLink(item.RoundID.ToString(), "Details", "Rounds", new { id = item.RoundID }, null)
+            </td>
+            <td>
+                @foreach (var w in winners)
+                {
+                    @Html.ActionLink(w.Bowler.Name, "Details", "Bowlers", new { id = w.Bowler.BowlerID }, null)
+                    if (!w.Equals(last))
+                    {
+                        <br />
+                    }
+                }
+            </td>
+            <td>
+                @if (winningScore != 0)
+                {
+                    @winningScore
+                }
+            </td>
+            <td>
+                @item.Scores.Sum(x => x.Score1)
+            </td>
+            <td>
+                <p>
+                    @if (authenticated)
+                    {
+                        @Html.ActionLink("Edit |", "Edit", new { id = item.RoundID });
+                    }
+                    @Html.ActionLink("Details", "Details", new { id = item.RoundID })
+                </p>
+            </td>
+        </tr>
+    }
+
+</table>
